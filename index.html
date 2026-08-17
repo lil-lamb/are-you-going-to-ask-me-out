@@ -209,7 +209,7 @@
   <main>
     <!-- Screen 1: The Ask -->
     <section class="screen active" id="screen-ask">
-      <h1 id="ask-title">are you going to ask me out?</h1>
+      <h1 id="ask-title">are you going to ask me out? 💗</h1>
       <p class="subtitle" id="no-subtitle">&nbsp;</p>
       <div class="btn-row">
         <button class="btn btn-primary" id="yes-btn">Yes</button>
@@ -219,7 +219,7 @@
 
     <!-- Screen 2: Date Plans -->
     <section class="screen" id="screen-plans">
-      <h1>what do you plan to do on our date?</h1>
+      <h1>what do you plan to do on our date? 📅</h1>
       <p class="counter" id="pill-counter">0/3 selected</p>
       <div class="pills" id="pills"></div>
       <input type="text" class="other-field" id="other-input" placeholder="Other suggestion (optional)" autocomplete="off">
@@ -228,14 +228,14 @@
 
     <!-- Screen 3: Flowers -->
     <section class="screen" id="screen-flowers">
-      <h1>are you going to bring flowers?</h1>
+      <h1>are you going to bring flowers? 💐</h1>
       <div class="flee-area" id="flee-area"></div>
     </section>
 
     <!-- Screen 4: Confirmation -->
     <section class="screen" id="screen-done">
-      <h1 id="done-title">got it — thanks!</h1>
-      <p class="subtitle" id="done-message">I'll think about it and get back to you in 3–4 business days 😏</p>
+      <h1 id="done-title">aw 🙈 you're so sweet!</h1>
+      <p class="subtitle" id="done-message">Allllllright, I'll think about it and get back to you in 3–4 business days 😊</p>
       <button class="btn btn-primary" id="close-btn">close</button>
     </section>
   </main>
@@ -243,7 +243,7 @@
   <script>
     // ============ CONFIG ============
     const CONFIG = {
-      askerName: "Mister", // shows in "are you going to ask me out, {NAME}?"
+      askerName: "mister", // shows in "are you going to ask me out, {NAME}?"
       sheetWebAppUrl: "https://script.google.com/macros/s/AKfycbyfJj57PpkqFo73HcCiIXFBBXaZV6cVWqrPLZ9kf20b427wlg4J5Rj84UAJT3sUbWX_/exec"
     };
 
@@ -270,9 +270,9 @@
     const noSubtitle = document.getElementById("no-subtitle");
 
     const NO_MSGS = [
-      "wait, really? 🥺",
+      "wait, seriously? 🥺",
       "are you sure? 😔",
-      "will you not really really really really really really super duper not regret it? 💔"
+      "you certain that you really really really really really really super duper mega won't regret it? 💔"
     ];
 
     noBtn.addEventListener("click", () => {
@@ -446,9 +446,9 @@
     function finalize() {
       const custom = otherInput.value.trim();
 
-      let message = "got it — " + selected.join(", ");
+      let message = "aw 🙈 " + selected.join(", ");
       if (custom) message += ", and your idea: " + custom;
-      message += ". thanks! I'll think about it and get back to you in 3–4 business days 😏";
+      message += ". you're so sweet! Allllllright, I'll think about it and get back to you in 3–4 business days 😊";
 
       document.getElementById("done-message").textContent = message;
       showScreen("done");
@@ -459,7 +459,7 @@
       if (submitted) return;
       submitted = true;
 
-      if (!CONFIG.sheetWebAppUrl || CONFIG.sheetWebAppUrl.indexOf("PASTE_APPS_SCRIPT_URL_HERE") !== -1) {
+      if (!CONFIG.sheetWebAppUrl || CONFIG.sheetWebAppUrl.indexOf("https://script.google.com/macros/s/AKfycbyfJj57PpkqFo73HcCiIXFBBXaZV6cVWqrPLZ9kf20b427wlg4J5Rj84UAJT3sUbWX_/exec") !== -1) {
         console.warn("[AskMeOut] sheetWebAppUrl not configured; skipping submission.");
         return;
       }
