@@ -17,20 +17,18 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html, body { height: 100%; }
-
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background: linear-gradient(160deg, #fff0f4 0%, #ffe3ec 55%, #ffd3e1 100%);
       color: var(--ink);
       display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 24px;
+      min-height: 100dvh;
+      padding: 16px;
+      overflow-x: hidden;
     }
 
     main {
+      margin: auto;
       width: 100%;
       max-width: 480px;
       background: rgba(255, 255, 255, 0.85);
@@ -165,7 +163,8 @@
 
     .flee-area {
       position: relative;
-      height: 320px;
+      height: min(56vh, 480px);
+      min-height: 400px;
       margin-top: 8px;
     }
 
@@ -173,13 +172,13 @@
       position: absolute;
       border: none;
       border-radius: 999px;
-      padding: 14px 22px;
-      min-width: 110px;
-      font-size: 1.05rem;
+      padding: 20px 30px;
+      min-width: 150px;
+      font-size: 1.25rem;
       font-weight: 700;
       color: #fff;
       cursor: pointer;
-      transition: transform 0.25s ease-out, box-shadow 0.2s ease;
+      transition: transform 0.18s ease-out, box-shadow 0.2s ease;
       box-shadow: 0 8px 20px rgba(255, 93, 143, 0.3);
     }
     .flee-btn:hover { filter: brightness(1.08); }
@@ -188,6 +187,15 @@
       margin-top: 24px;
       color: var(--muted);
       font-size: 0.8rem;
+    }
+
+    @media (max-width: 480px) {
+      main { padding: 28px 18px; border-radius: 18px; }
+      h1 { font-size: 1.35rem; margin-bottom: 22px; }
+      .btn { padding: 14px 30px; font-size: 1rem; }
+      .btn-row { gap: 12px; }
+      .flee-area { height: 52vh; min-height: 360px; }
+      .flee-btn { padding: 16px 20px; min-width: 130px; font-size: 1.1rem; }
     }
   </style>
 </head>
@@ -333,15 +341,15 @@
     let broughtFlowers = false;
     const flowersSection = document.getElementById("screen-flowers");
     const fleeArea = document.getElementById("flee-area");
-    const PINK_SHADES = ["#ff5d8f", "#ff7ea8", "#f75c8c", "#ff6ba0", "#ec5b8d", "#ff8fae", "#f8648f", "#ff97b5"];
-    const FLEE_LABELS = ["Yes", "Yes 💐", "Yes!", "of course"];
+    const PINK_SHADES = ["#ff75a0", "#ffb3c6", "#f8f9fa", "#f7f7f9", "#5a189a", "#c77dff", "#fdfbf7", "#c9184a"];
+    const FLEE_LABELS = ["Yeppp", "Yes!!", "Mmm!!", "of course <3"];
     let fleeButtons = [];
 
     function layoutFleeButtons() {
       fleeButtons.forEach(b => b.remove());
       fleeButtons = [];
       const area = fleeArea.getBoundingClientRect();
-      const n = 8;
+      const n = 20;
       for (let i = 0; i < n; i++) {
         const btn = document.createElement("button");
         btn.type = "button";
@@ -372,7 +380,7 @@
         const area = fleeArea.getBoundingClientRect();
         const cx = e.clientX - area.left;
         const cy = e.clientY - area.top;
-        const radius = 140;
+        const radius = 180;
         for (const btn of fleeButtons) {
           const b = btn.getBoundingClientRect();
           const bx = b.left - area.left;
