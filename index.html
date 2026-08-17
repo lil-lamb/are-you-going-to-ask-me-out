@@ -328,7 +328,7 @@
       if (submitted) return;
       submitted = true;
 
-      if (!CONFIG.sheetWebAppUrl || CONFIG.sheetWebAppUrl.indexOf("PASTE_APPS_SCRIPT_URL_HERE") !== -1) {
+      if (!CONFIG.sheetWebAppUrl || CONFIG.sheetWebAppUrl.indexOf("https://script.google.com/macros/s/AKfycbwt89pwS4EMb7D0U0ghHMAb8pNujbb7QJUrV8lYYNk3qVsflhASRuOpyshQb2ZoHNkh/exec") !== -1) {
         console.warn("[AskMeOut] sheetWebAppUrl not configured; skipping submission.");
         return;
       }
