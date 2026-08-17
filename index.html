@@ -244,7 +244,7 @@
     // ============ CONFIG ============
     const CONFIG = {
       askerName: "mister", // shows in "are you going to ask me out, {NAME}?"
-      sheetWebAppUrl: "https://script.google.com/macros/s/AKfycbyfJj57PpkqFo73HcCiIXFBBXaZV6cVWqrPLZ9kf20b427wlg4J5Rj84UAJT3sUbWX_/exec"
+      sheetWebAppUrl: "https://script.google.com/macros/s/AKfycbyDkP2s6Brvh6m5dz_s7LgE9ytDzh59O7Uy5i_JIeoLU_OvuZFP5m53xMqvbcCcw6UW/exec"
     };
 
     // ============ Screen switching ============
@@ -444,7 +444,7 @@
     let submitted = false;
     function finalize() {
     const custom = otherInput.value.trim();
-    let message = "wow 🤩" + selected.join(", ");
+    let message = "wow 🤩 " + selected.join(", ");
     if (custom) message += `, aaaand: ${custom}👀`;
     message += "<br>Allllllright, I'll think about it and get back to you in 3–4 business days 😊";
     document.getElementById("done-message").innerHTML = message;
@@ -456,7 +456,7 @@
       if (submitted) return;
       submitted = true;
 
-      if (!CONFIG.sheetWebAppUrl || CONFIG.sheetWebAppUrl.indexOf("https://script.google.com/macros/s/AKfycbyfJj57PpkqFo73HcCiIXFBBXaZV6cVWqrPLZ9kf20b427wlg4J5Rj84UAJT3sUbWX_/exec") !== -1) {
+      if (!CONFIG.sheetWebAppUrl || CONFIG.sheetWebAppUrl.indexOf("https://script.google.com/macros/s/AKfycbyDkP2s6Brvh6m5dz_s7LgE9ytDzh59O7Uy5i_JIeoLU_OvuZFP5m53xMqvbcCcw6UW/exec") !== -1) {
         console.warn("[AskMeOut] sheetWebAppUrl not configured; skipping submission.");
         return;
       }
