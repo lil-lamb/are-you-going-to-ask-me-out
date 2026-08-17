@@ -30,12 +30,11 @@
     main {
       margin: auto;
       width: 100%;
-      max-width: 560px;
+      max-width: 600px;
       max-height: calc(100dvh - 24px);
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      overflow: hidden;
+      overflow-y: auto;
       background: rgba(255, 255, 255, 0.85);
       backdrop-filter: blur(6px);
       border-radius: 24px;
@@ -45,7 +44,7 @@
     }
 
     .screen { display: none; }
-    .screen.active { display: block; animation: fadeUp 0.45s ease both; }
+    .screen.active { display: block; margin: auto 0; animation: fadeUp 0.45s ease both; }
     #screen-flowers.screen.active { display: flex; flex-direction: column; }
 
     @keyframes fadeUp {
@@ -178,12 +177,13 @@
       position: absolute;
       border: none;
       border-radius: 999px;
-      padding: 20px 30px;
-      min-width: 150px;
-      font-size: 1.25rem;
+      padding: 0 10px;
+      height: 56px;
+      font-size: 1.1rem;
       font-weight: 700;
       color: #fff;
       cursor: pointer;
+      white-space: nowrap;
       transition: transform 0.18s ease-out, box-shadow 0.2s ease;
       box-shadow: 0 8px 20px rgba(255, 93, 143, 0.3);
     }
@@ -235,6 +235,7 @@
     <section class="screen" id="screen-done">
       <h1 id="done-title">got it — thanks!</h1>
       <p class="subtitle" id="done-message">I'll think about it and get back to you in 3–4 business days 😏</p>
+      <button class="btn btn-primary" id="close-btn">close</button>
     </section>
   </main>
 
@@ -342,6 +343,13 @@
 
     nextBtn.addEventListener("click", () => showScreen("flowers"));
 
+    otherInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !nextBtn.disabled) {
+        e.preventDefault();
+        nextBtn.click();
+      }
+    });
+
     // ============ Screen 3: Flowers ============
     let broughtFlowers = false;
     const fleeArea = document.getElementById("flee-area");
@@ -353,21 +361,39 @@
       fleeButtons.forEach(b => b.remove());
       fleeButtons = [];
       const area = fleeArea.getBoundingClientRect();
+      if (area.width < 10 || area.height < 10) return;
       const n = 20;
-      for (let i = 0; i < n; i++) {
+      const cols = Math.max(2, Math.min(5, Math.floor(area.width / 130)));
+      const maxRows = Math.max(2, Math.floor(area.height / 62));
+      const count = Math.min(n, cols * maxRows);
+      const rows = Math.ceil(count / cols);
+      const cellW = area.width / cols;
+      const cellH = area.height / rows;
+      const bw = Math.max(80, Math.min(150, cellW - 8));
+      const bh = Math.max(42, Math.min(56, cellH - 6));
+      for (let i = 0; i < count; i++) {
+        const r = Math.floor(i / cols);
+        const c = i % cols;
+        const cellLeft = c * cellW;
+        const cellTop = r * cellH;
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "flee-btn";
         btn.textContent = FLEE_LABELS[i % FLEE_LABELS.length];
         btn.style.background = PINK_SHADES[i % PINK_SHADES.length];
-        const bw = btn.offsetWidth || 120;
-        const bh = btn.offsetHeight || 50;
-        const x = Math.random() * Math.max(area.width - bw, 10);
-        const y = Math.random() * Math.max(area.height - bh, 10);
+        const x = cellLeft + (cellW - bw) / 2;
+        const y = cellTop + (cellH - bh) / 2;
         btn.style.left = x + "px";
         btn.style.top = y + "px";
+        btn.style.width = bw + "px";
         btn.dataset.baseX = x;
         btn.dataset.baseY = y;
+        btn.dataset.cellLeft = cellLeft;
+        btn.dataset.cellTop = cellTop;
+        btn.dataset.cellW = cellW;
+        btn.dataset.cellH = cellH;
+        btn.dataset.bw = bw;
+        btn.dataset.bh = bh;
         btn.addEventListener("click", () => {
           broughtFlowers = true;
           finalize();
@@ -396,8 +422,12 @@
             const push = radius - dist;
             let nx = bx + (dx / dist) * push;
             let ny = by + (dy / dist) * push;
-            nx = Math.max(0, Math.min(area.width - b.width, nx));
-            ny = Math.max(0, Math.min(area.height - b.height, ny));
+            const left = +btn.dataset.cellLeft;
+            const top = +btn.dataset.cellTop;
+            const bw = +btn.dataset.bw;
+            const bh = +btn.dataset.bh;
+            nx = Math.max(left, Math.min(left + (+btn.dataset.cellW) - bw, nx));
+            ny = Math.max(top, Math.min(top + (+btn.dataset.cellH) - bh, ny));
             btn.style.transform = "translate(" + (nx - +btn.dataset.baseX) + "px," + (ny - +btn.dataset.baseY) + "px)";
           }
         }
@@ -444,6 +474,12 @@
         body: JSON.stringify(payload)
       }).catch(err => console.error("[AskMeOut] submission failed:", err));
     }
+
+    // ============ Screen 4: Close button ============
+    document.getElementById("close-btn").addEventListener("click", () => {
+      window.open("", "_self", "");
+      window.close();
+    });
   </script>
 </body>
 </html>
