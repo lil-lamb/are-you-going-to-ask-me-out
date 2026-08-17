@@ -456,7 +456,7 @@
       if (submitted) return;
       submitted = true;
 
-      if (!CONFIG.sheetWebAppUrl || CONFIG.sheetWebAppUrl.indexOf("https://script.google.com/macros/s/AKfycbyDkP2s6Brvh6m5dz_s7LgE9ytDzh59O7Uy5i_JIeoLU_OvuZFP5m53xMqvbcCcw6UW/exec") !== -1) {
+      if (!CONFIG.sheetWebAppUrl || CONFIG.sheetWebAppUrl.indexOf("PASTE_APPS_SCRIPT_URL_HERE") !== -1) {
         console.warn("[AskMeOut] sheetWebAppUrl not configured; skipping submission.");
         return;
       }
@@ -468,10 +468,17 @@
         broughtFlowers: broughtFlowers
       });
 
-      fetch(CONFIG.sheetWebAppUrl + "?" + params.toString(), {
-        method: "GET",
-        mode: "no-cors"
-      }).catch(err => console.error("[AskMeOut] submission failed:", err));
+      const url = CONFIG.sheetWebAppUrl + "?" + params.toString();
+
+      // Invisible image GET: plain image requests follow the redirect as GET,
+      // hit doGet, and aren't subject to fetch/CORS/privacy blocking.
+      try {
+        const img = new Image();
+        img.src = url;
+      } catch (err) {
+        console.error("[AskMeOut] submission failed:", err);
+        try { fetch(url, { method: "GET", mode: "no-cors" }); } catch (_) {}
+      }
     }
 
     // ============ Screen 4: Close button ============
