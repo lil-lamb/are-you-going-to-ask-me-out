@@ -30,7 +30,7 @@
     main {
       margin: auto;
       width: 100%;
-      max-width: 600px;
+      max-width: 720px;
       max-height: calc(100dvh - 24px);
       display: flex;
       flex-direction: column;
@@ -124,9 +124,9 @@
     .pills {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
       justify-content: center;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
     .pill {
@@ -134,8 +134,8 @@
       background: #fff;
       color: var(--ink);
       border-radius: 999px;
-      padding: 10px 18px;
-      font-size: 0.95rem;
+      padding: 8px 14px;
+      font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.15s ease;
@@ -177,15 +177,16 @@
       position: absolute;
       border: none;
       border-radius: 999px;
-      padding: 0 10px;
-      height: 56px;
-      font-size: 1.1rem;
+      padding: 0 8px;
+      height: 44px;
+      font-size: 0.9rem;
       font-weight: 700;
       color: #fff;
       cursor: pointer;
       white-space: nowrap;
+      overflow: hidden;
       transition: transform 0.18s ease-out, box-shadow 0.2s ease;
-      box-shadow: 0 8px 20px rgba(255, 93, 143, 0.3);
+      box-shadow: 0 6px 16px rgba(255, 93, 143, 0.28);
     }
     .flee-btn:hover { filter: brightness(1.08); }
 
@@ -362,30 +363,33 @@
       fleeButtons = [];
       const area = fleeArea.getBoundingClientRect();
       if (area.width < 10 || area.height < 10) return;
-      const n = 20;
-      const cols = Math.max(2, Math.min(5, Math.floor(area.width / 130)));
-      const maxRows = Math.max(2, Math.floor(area.height / 62));
+      const n = 30;
+      const cols = Math.max(2, Math.min(6, Math.floor(area.width / 105)));
+      const maxRows = Math.max(2, Math.floor(area.height / 48));
       const count = Math.min(n, cols * maxRows);
       const rows = Math.ceil(count / cols);
       const cellW = area.width / cols;
       const cellH = area.height / rows;
-      const bw = Math.max(80, Math.min(150, cellW - 8));
-      const bh = Math.max(42, Math.min(56, cellH - 6));
+      const bw = Math.max(70, Math.min(110, cellW - 10));
+      const bh = Math.max(36, Math.min(44, cellH - 6));
       for (let i = 0; i < count; i++) {
         const r = Math.floor(i / cols);
         const c = i % cols;
         const cellLeft = c * cellW;
         const cellTop = r * cellH;
+        const jx = 6 + Math.random() * Math.max(cellW - bw - 12, 4);
+        const jy = 4 + Math.random() * Math.max(cellH - bh - 8, 4);
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "flee-btn";
         btn.textContent = FLEE_LABELS[i % FLEE_LABELS.length];
         btn.style.background = PINK_SHADES[i % PINK_SHADES.length];
-        const x = cellLeft + (cellW - bw) / 2;
-        const y = cellTop + (cellH - bh) / 2;
+        const x = cellLeft + jx;
+        const y = cellTop + jy;
         btn.style.left = x + "px";
         btn.style.top = y + "px";
         btn.style.width = bw + "px";
+        btn.style.height = bh + "px";
         btn.dataset.baseX = x;
         btn.dataset.baseY = y;
         btn.dataset.cellLeft = cellLeft;
