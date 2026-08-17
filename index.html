@@ -444,17 +444,20 @@
     let submitted = false;
 
     function finalize() {
-      const custom = otherInput.value.trim();
+    const custom = otherInput.value.trim();
 
-      let message = "wow 🤩" + selected.join(", ");
-      if (custom) message += ", aaaand: " + custom;
-      message += "👀 \nAllllllright, I'll think about it and get back to you in 3–4 business days 😊";
-
-      document.getElementById("done-message").textContent = message;
-      showScreen("done");
-      submitData(custom);
+    let details = selected.join(", ");
+    if (custom) {
+      details += details ? `, aaaand: ${custom}` : `aaaand: ${custom}`;
     }
 
+    const message = `wow 🤩 ${details} 👀\n\nAllllllright, I'll think about it and get back to you in 3–4 business days 😊`;
+
+    document.getElementById("done-message").textContent = message;
+    showScreen("done");
+    submitData(custom);
+    }
+    
     function submitData(customSuggestion) {
       if (submitted) return;
       submitted = true;
