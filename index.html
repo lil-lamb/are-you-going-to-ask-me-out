@@ -163,6 +163,27 @@
       pointer-events: none;
     }
 
+    .flee-area {
+      position: relative;
+      height: 320px;
+      margin-top: 8px;
+    }
+
+    .flee-btn {
+      position: absolute;
+      border: none;
+      border-radius: 999px;
+      padding: 14px 22px;
+      min-width: 110px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.25s ease-out, box-shadow 0.2s ease;
+      box-shadow: 0 8px 20px rgba(255, 93, 143, 0.3);
+    }
+    .flee-btn:hover { filter: brightness(1.08); }
+
     .footnote {
       margin-top: 24px;
       color: var(--muted);
@@ -194,7 +215,7 @@
     <!-- Screen 3: Flowers -->
     <section class="screen" id="screen-flowers">
       <h1>are you going to bring flowers?</h1>
-      <button class="btn btn-primary" id="flowers-yes">Yes</button>
+      <div class="flee-area" id="flee-area"></div>
     </section>
 
     <!-- Screen 4: Confirmation -->
@@ -208,7 +229,7 @@
     // ============ CONFIG ============
     const CONFIG = {
       askerName: "Mister", // shows in "are you going to ask me out, {NAME}?"
-      sheetWebAppUrl: "https://script.google.com/macros/s/AKfycbyMvkT1LVHLW9RBvpmUwgs-JzbzXWhAwdE-ujj6pQO6E5OAqGIQq83ASM5Hsymmgc13/exec"
+      sheetWebAppUrl: "https://script.google.com/macros/s/AKfycbyfJj57PpkqFo73HcCiIXFBBXaZV6cVWqrPLZ9kf20b427wlg4J5Rj84UAJT3sUbWX_/exec"
     };
 
     // ============ Screen switching ============
@@ -222,6 +243,7 @@
     function showScreen(name) {
       Object.values(screens).forEach(s => s.classList.remove("active"));
       screens[name].classList.add("active");
+      if (name === "flowers") layoutFleeButtons();
     }
 
     // ============ Screen 1: The Ask ============
@@ -234,8 +256,8 @@
 
     const NO_MSGS = [
       "wait, really? 🥺",
-      "am I not pretty?",
-      "is it something I said?"
+      "are you sure? 😔",
+      "will you not really really really really really really super duper not regret it? 💔"
     ];
 
     noBtn.addEventListener("click", () => {
@@ -254,8 +276,13 @@
 
     // ============ Screen 2: Date Plans ============
     const OPTIONS = [
-      "Dinner", "Movie", "Walk in the park", "Coffee",
-      "Museum/gallery", "Game night", "Something adventurous"
+     "Dinner 🍽️", "Movie 🍿", "Walk in the park 🌳", "Coffee ☕", 
+     "Museum/gallery 🖼️", "Game night 🎲", "Something adventurous 🧗", "Picnic 🧺", 
+     "Cooking class 🧑‍🍳", "Live music/concert 🎶", "Thrift shopping 🛍️", "Stargazing ✨", 
+     "Escape room 🧩", "Arcade/bowling 🎳", "Sunset view 🌅", "Pottery making 🏺", "Wine/beer tasting 🍷", 
+     "Farmers market 🧺", "Ice/roller skating 🛼", "Kayaking/paddleboarding 🚣", "Comedy show 🎭", 
+     "Trivia night 🧠", "Bookstore browsing 📚", "Dessert crawl 🍰", "Rock climbing 🧗‍♀️", "Mini golf ⛳", 
+     "Drive-in theater 🚘", "Paint and sip 🎨", "Plant workshop 🪴"
     ];
     const MIN_PICKS = 2;
     const MAX_PICKS = 3;
@@ -304,10 +331,68 @@
 
     // ============ Screen 3: Flowers ============
     let broughtFlowers = false;
-    document.getElementById("flowers-yes").addEventListener("click", () => {
-      broughtFlowers = true;
-      finalize();
-    });
+    const flowersSection = document.getElementById("screen-flowers");
+    const fleeArea = document.getElementById("flee-area");
+    const PINK_SHADES = ["#ff5d8f", "#ff7ea8", "#f75c8c", "#ff6ba0", "#ec5b8d", "#ff8fae", "#f8648f", "#ff97b5"];
+    const FLEE_LABELS = ["Yes", "Yes 💐", "Yes!", "of course"];
+    let fleeButtons = [];
+
+    function layoutFleeButtons() {
+      fleeButtons.forEach(b => b.remove());
+      fleeButtons = [];
+      const area = fleeArea.getBoundingClientRect();
+      const n = 8;
+      for (let i = 0; i < n; i++) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "flee-btn";
+        btn.textContent = FLEE_LABELS[i % FLEE_LABELS.length];
+        btn.style.background = PINK_SHADES[i % PINK_SHADES.length];
+        const bw = btn.offsetWidth || 120;
+        const bh = btn.offsetHeight || 50;
+        const x = Math.random() * Math.max(area.width - bw, 10);
+        const y = Math.random() * Math.max(area.height - bh, 10);
+        btn.style.left = x + "px";
+        btn.style.top = y + "px";
+        btn.dataset.baseX = x;
+        btn.dataset.baseY = y;
+        btn.addEventListener("click", () => {
+          broughtFlowers = true;
+          finalize();
+        });
+        fleeArea.appendChild(btn);
+        fleeButtons.push(btn);
+      }
+    }
+
+    const canHover = window.matchMedia("(hover: hover)").matches;
+
+    if (canHover) {
+      fleeArea.addEventListener("mousemove", (e) => {
+        const area = fleeArea.getBoundingClientRect();
+        const cx = e.clientX - area.left;
+        const cy = e.clientY - area.top;
+        const radius = 140;
+        for (const btn of fleeButtons) {
+          const b = btn.getBoundingClientRect();
+          const bx = b.left - area.left;
+          const by = b.top - area.top;
+          const dx = bx + b.width / 2 - cx;
+          const dy = by + b.height / 2 - cy;
+          const dist = Math.hypot(dx, dy);
+          if (dist < radius && dist > 0) {
+            const push = radius - dist;
+            let nx = bx + (dx / dist) * push;
+            let ny = by + (dy / dist) * push;
+            nx = Math.max(0, Math.min(area.width - b.width, nx));
+            ny = Math.max(0, Math.min(area.height - b.height, ny));
+            btn.style.transform = "translate(" + (nx - +btn.dataset.baseX) + "px," + (ny - +btn.dataset.baseY) + "px)";
+          }
+        }
+      });
+    }
+
+    new ResizeObserver(layoutFleeButtons).observe(fleeArea);
 
     // ============ Screen 4: Confirmation + submission ============
     let submitted = false;
