@@ -32,8 +32,10 @@ A playful, flirty single-page "quiz" that nudges someone toward saying yes to a 
 
 ```javascript
 function doPost(e) {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   const data = JSON.parse(e.postData.contents);
+
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName("AskMeOut Responses") || ss.getSheets()[0];
 
   sheet.appendRow([
     new Date(),
@@ -55,6 +57,8 @@ function doPost(e) {
   ).setMimeType(ContentService.MimeType.JSON);
 }
 ```
+
+> Note: the script writes to the tab named **"AskMeOut Responses"** (falling back to the first tab if missing), so rows land in the right place no matter which tab is active.
 
 3. Replace `YOUR_EMAIL@example.com` with your real address.
 

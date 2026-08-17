@@ -208,7 +208,7 @@
     // ============ CONFIG ============
     const CONFIG = {
       askerName: "Mister", // shows in "are you going to ask me out, {NAME}?"
-      sheetWebAppUrl: "https://script.google.com/macros/s/AKfycbwt89pwS4EMb7D0U0ghHMAb8pNujbb7QJUrV8lYYNk3qVsflhASRuOpyshQb2ZoHNkh/exec"
+      sheetWebAppUrl: "https://script.google.com/macros/s/AKfycbyMvkT1LVHLW9RBvpmUwgs-JzbzXWhAwdE-ujj6pQO6E5OAqGIQq83ASM5Hsymmgc13/exec"
     };
 
     // ============ Screen switching ============
@@ -328,7 +328,7 @@
       if (submitted) return;
       submitted = true;
 
-      if (!CONFIG.sheetWebAppUrl || CONFIG.sheetWebAppUrl.indexOf("https://script.google.com/macros/s/AKfycbwt89pwS4EMb7D0U0ghHMAb8pNujbb7QJUrV8lYYNk3qVsflhASRuOpyshQb2ZoHNkh/exec") !== -1) {
+      if (!CONFIG.sheetWebAppUrl || CONFIG.sheetWebAppUrl.indexOf("PASTE_APPS_SCRIPT_URL_HERE") !== -1) {
         console.warn("[AskMeOut] sheetWebAppUrl not configured; skipping submission.");
         return;
       }
