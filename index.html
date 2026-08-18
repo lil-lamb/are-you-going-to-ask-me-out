@@ -400,7 +400,13 @@
     function floatLoop() {
       const areaW = areaCache.w, areaH = areaCache.h;
       const btns = fleeButtons;
+
+      const FRICTION = 0.97;
+      const MAX_SPEED = 4;
+
       for (const b of btns) {
+        b.vx *= FRICTION;
+        b.vy *= FRICTION;
         b.x += b.vx;
         b.y += b.vy;
       }
@@ -433,6 +439,13 @@
           b.vx += ux * force * 0.06;
           b.vy += uy * force * 0.06;
         }
+
+        const speed = Math.hypot(b.vx, b.vy);
+        if (speed > MAX_SPEED) {
+          b.vx = (b.vx / speed) * MAX_SPEED;
+          b.vy = (b.vy / speed) * MAX_SPEED;
+        }
+
         b.x = Math.max(0, Math.min(areaW - b.w, b.x));
         b.y = Math.max(0, Math.min(areaH - b.h, b.y));
         if (b.x <= 0) b.vx = Math.abs(b.vx) * 0.9;
@@ -458,7 +471,20 @@
       });
     }
 
-    new ResizeObserver(layoutFleeButtons).observe(fleeArea);
+    const fleeResizeObserver = new ResizeObserver(layoutFleeButtons);
+    fleeResizeObserver.observe(fleeArea);
+
+    // Call this when leaving/tearing down screen 3 to stop the animation
+    // loop and disconnect the observer, preventing leaks on re-entry.
+    function teardownFleeScreen() {
+      fleeResizeObserver.disconnect();
+      if (floatRaf) {
+        cancelAnimationFrame(floatRaf);
+        floatRaf = null;
+      }
+      fleeButtons.forEach(b => b.el.remove());
+      fleeButtons = [];
+    }
 
     // ============ Screen 4: Confirmation + submission ============
     let submitted = false;
