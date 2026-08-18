@@ -463,17 +463,17 @@
       x: Math.random() * (area.width - bw),
       y: Math.random() * (area.height - bh),
       angle,                                   // direction of travel
-      speed: 0.5 + Math.random() * 0.3          // steady cruising speed
+      speed: 0.15 + Math.random() * 0.15          // steady cruising speed
     });
   }
   if (!floatRaf) floatRaf = requestAnimationFrame(floatLoop);
 }
 
-const MIN_SPEED = 0.4;
-const MAX_SPEED = 1.1;
-const TURN_RATE = 0.04;      // max radians/frame the button can steer
-const FLEE_SPEED = 2.2;      // speed while actively fleeing the cursor
-const REPEL_RADIUS = 150;
+const MIN_SPEED = 0.15;
+const MAX_SPEED = 0.35;
+const TURN_RATE = 0.008;      // much gentler wander — smooth arcs, not jitter
+const FLEE_SPEED = 0.9;       // still noticeably faster when dodging cursor, but not frantic
+const REPEL_RADIUS = 130;
 
 function floatLoop() {
   const areaW = areaCache.w, areaH = areaCache.h;
