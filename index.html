@@ -479,37 +479,35 @@ function floatLoop() {
   const areaW = areaCache.w, areaH = areaCache.h;
   const btns = fleeButtons;
 
-  for (const b of btns) {
-    // gentle random wander: nudge the heading slightly each frame
+// 1. movement — Constant Speed
+for (const b of btns) {
+    // Natural wandering
     b.angle += (Math.random() - 0.5) * TURN_RATE;
 
-    // default: drift back toward a steady cruising speed
-    let targetSpeed = MIN_SPEED + (b.speed - MIN_SPEED) * 0.98;
+    // Lock the speed so it never speeds up, slows down, or stops
+    b.speed = 1.5; // Feel free to tweak this number!
 
     const cx = b.x + b.w / 2, cy = b.y + b.h / 2;
     const dx = cx - mouseX, dy = cy - mouseY;
     const dist = Math.hypot(dx, dy);
 
+    // Mouse repel logic (Changes direction ONLY, not speed)
     if (dist < REPEL_RADIUS && dist > 0) {
-      // steer away from the cursor, speed up smoothly
       const fleeAngle = Math.atan2(dy, dx);
       let diff = fleeAngle - b.angle;
-      diff = Math.atan2(Math.sin(diff), Math.cos(diff)); // shortest turn
+      diff = Math.atan2(Math.sin(diff), Math.cos(diff));
+      
+      // Steer away from the mouse
       b.angle += Math.max(-TURN_RATE * 3, Math.min(TURN_RATE * 3, diff));
-      const strength = (REPEL_RADIUS - dist) / REPEL_RADIUS;
-      targetSpeed = MIN_SPEED + (FLEE_SPEED - MIN_SPEED) * strength;
     }
 
-    b.speed += (targetSpeed - b.speed) * 0.15; // smooth speed transitions
-    b.speed = Math.max(MIN_SPEED, Math.min(MAX_SPEED > b.speed ? b.speed : MAX_SPEED, b.speed));
-    if (dist < REPEL_RADIUS) b.speed = Math.min(b.speed, FLEE_SPEED);
-
+    // Apply the constant movement
     b.x += Math.cos(b.angle) * b.speed;
     b.y += Math.sin(b.angle) * b.speed;
   }
 
-  // keep buttons from overlapping (pure positional correction, no velocity spikes)
-  for (let i = 0; i < btns.length; i++) {
+// 2. collision resolution — smooth & dynamic deflection
+for (let i = 0; i < btns.length; i++) {
     for (let j = i + 1; j < btns.length; j++) {
       const a = btns[i], b = btns[j];
       const ax = a.x + a.w / 2, ay = a.y + a.h / 2;
@@ -517,23 +515,59 @@ function floatLoop() {
       const dx = bx - ax, dy = by - ay;
       const minD = (a.w + b.w) / 2;
       const dist = Math.hypot(dx, dy);
+      
       if (dist > 0 && dist < minD) {
-        const push = (minD - dist) / 2;
         const ux = dx / dist, uy = dy / dist;
+        const overlap = minD - dist;
+        
+        // 1. Soft Positional Push: Ease them apart slowly (e.g., 5% per frame) instead of 50%
+        const push = overlap * 0.05; 
         a.x -= ux * push; a.y -= uy * push;
         b.x += ux * push; b.y += uy * push;
+
+        // 2. Smooth Heading Deflection
+        const aTargetAngle = Math.atan2(-uy, -ux);
+        const bTargetAngle = Math.atan2(uy, ux);
+        
+        // Normalize angle differences to [-π, π] to prevent wild spinning
+        let aDiff = aTargetAngle - a.angle;
+        aDiff = Math.atan2(Math.sin(aDiff), Math.cos(aDiff));
+        
+        let bDiff = bTargetAngle - b.angle;
+        bDiff = Math.atan2(Math.sin(bDiff), Math.cos(bDiff));
+        
+        // Gently steer them away from each other (smaller multiplier = wider, smoother curves)
+        a.angle += aDiff * 0.08;
+        b.angle += bDiff * 0.08;
       }
     }
   }
 
-  for (const b of btns) {
-    // bounce off walls by reflecting the angle, not velocity
+// 3. Soft boundaries, wall bounce + render
+for (const b of btns) {
+    // --- 1. Soft Boundary Cushion ---
+    // Temporarily convert angle to velocity to gently nudge them away from edges
+    let vx = Math.cos(b.angle) * b.speed;
+    let vy = Math.sin(b.angle) * b.speed;
+    
+    const margin = 40;         // Distance from the wall to start feeling the cushion
+    const cushionForce = 1; // How strongly the invisible boundary pushes back
+    
+    if (b.x < margin) vx += cushionForce;
+    if (b.x > areaW - b.w - margin) vx -= cushionForce;
+    if (b.y < margin) vy += cushionForce; // Push down from top
+    if (b.y > areaH - b.h - margin) vy -= cushionForce; // Push up from bottom
+    
+    // Apply the newly nudged direction (speed remains controlled by block 1)
+    b.angle = Math.atan2(vy, vx);
+
+    // --- 2. Hard Wall Clamp (Safety Net) ---
     if (b.x <= 0) { b.x = 0; b.angle = Math.PI - b.angle; }
     if (b.x >= areaW - b.w) { b.x = areaW - b.w; b.angle = Math.PI - b.angle; }
     if (b.y <= 0) { b.y = 0; b.angle = -b.angle; }
     if (b.y >= areaH - b.h) { b.y = areaH - b.h; b.angle = -b.angle; }
 
-    b.el.style.transform = "translate(" + b.x + "px," + b.y + "px)";
+    b.el.style.transform = `translate(${b.x}px, ${b.y}px)`;
   }
 
   floatRaf = requestAnimationFrame(floatLoop);
