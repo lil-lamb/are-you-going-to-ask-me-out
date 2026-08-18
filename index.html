@@ -185,7 +185,7 @@
       cursor: pointer;
       white-space: nowrap;
       overflow: hidden;
-      transition: transform 0.18s ease-out, box-shadow 0.2s ease;
+      transition: box-shadow 0.2s ease;
       box-shadow: 0 6px 16px rgba(255, 93, 143, 0.28);
     }
     .flee-btn:hover { filter: brightness(1.08); }
@@ -272,7 +272,7 @@
     const NO_MSGS = [
       "wait, seriously? 🥺",
       "are you sure? 😔",
-      "you certain that you really really really really really really super duper mega won't regret it? 💔"
+      "you might really really really really really really super duper mega regret it 💔"
     ];
 
     noBtn.addEventListener("click", () => {
@@ -357,54 +357,91 @@
     const PINK_SHADES = ["#ff75a0", "#ffb3c6", "#2a085c", "#7b2cbf", "#5a189a", "#c77dff", "#e056fd", "#c9184a"];
     const FLEE_LABELS = ["Yeppp", "Yes!!", "Mmm!!", "of course <3"];
     let fleeButtons = [];
+    let mouseX = -9999, mouseY = -9999;
+    let floatRaf = null;
+    let areaCache = { w: 0, h: 0 };
 
     function layoutFleeButtons() {
-      fleeButtons.forEach(b => b.remove());
+      fleeButtons.forEach(b => b.el.remove());
       fleeButtons = [];
       const area = fleeArea.getBoundingClientRect();
       if (area.width < 10 || area.height < 10) return;
+      areaCache.w = area.width;
+      areaCache.h = area.height;
       const n = 30;
-      const cols = Math.max(2, Math.min(6, Math.floor(area.width / 105)));
-      const maxRows = Math.max(2, Math.floor(area.height / 48));
-      const count = Math.min(n, cols * maxRows);
-      const rows = Math.ceil(count / cols);
-      const cellW = area.width / cols;
-      const cellH = area.height / rows;
-      const bw = Math.max(70, Math.min(110, cellW - 10));
-      const bh = Math.max(36, Math.min(44, cellH - 6));
-      for (let i = 0; i < count; i++) {
-        const r = Math.floor(i / cols);
-        const c = i % cols;
-        const cellLeft = c * cellW;
-        const cellTop = r * cellH;
-        const jx = 6 + Math.random() * Math.max(cellW - bw - 12, 4);
-        const jy = 4 + Math.random() * Math.max(cellH - bh - 8, 4);
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "flee-btn";
-        btn.textContent = FLEE_LABELS[i % FLEE_LABELS.length];
-        btn.style.background = PINK_SHADES[i % PINK_SHADES.length];
-        const x = cellLeft + jx;
-        const y = cellTop + jy;
-        btn.style.left = x + "px";
-        btn.style.top = y + "px";
-        btn.style.width = bw + "px";
-        btn.style.height = bh + "px";
-        btn.dataset.baseX = x;
-        btn.dataset.baseY = y;
-        btn.dataset.cellLeft = cellLeft;
-        btn.dataset.cellTop = cellTop;
-        btn.dataset.cellW = cellW;
-        btn.dataset.cellH = cellH;
-        btn.dataset.bw = bw;
-        btn.dataset.bh = bh;
-        btn.addEventListener("click", () => {
+      const bw = Math.max(70, Math.min(110, area.width / 6));
+      const bh = 44;
+      for (let i = 0; i < n; i++) {
+        const el = document.createElement("button");
+        el.type = "button";
+        el.className = "flee-btn";
+        el.textContent = FLEE_LABELS[i % FLEE_LABELS.length];
+        el.style.background = PINK_SHADES[i % PINK_SHADES.length];
+        el.style.width = bw + "px";
+        el.style.height = bh + "px";
+        el.addEventListener("click", () => {
           broughtFlowers = true;
           finalize();
         });
-        fleeArea.appendChild(btn);
-        fleeButtons.push(btn);
+        fleeArea.appendChild(el);
+        fleeButtons.push({
+          el,
+          w: bw,
+          h: bh,
+          x: Math.random() * (area.width - bw),
+          y: Math.random() * (area.height - bh),
+          vx: (Math.random() - 0.5) * 1.1,
+          vy: (Math.random() - 0.5) * 1.1
+        });
       }
+      if (!floatRaf) floatRaf = requestAnimationFrame(floatLoop);
+    }
+
+    function floatLoop() {
+      const areaW = areaCache.w, areaH = areaCache.h;
+      const btns = fleeButtons;
+      for (const b of btns) {
+        b.x += b.vx;
+        b.y += b.vy;
+      }
+      for (let i = 0; i < btns.length; i++) {
+        for (let j = i + 1; j < btns.length; j++) {
+          const a = btns[i], b = btns[j];
+          const ax = a.x + a.w / 2, ay = a.y + a.h / 2;
+          const bx = b.x + b.w / 2, by = b.y + b.h / 2;
+          const dx = bx - ax, dy = by - ay;
+          const minD = (a.w + b.w) / 2;
+          const dist = Math.hypot(dx, dy);
+          if (dist > 0 && dist < minD) {
+            const push = (minD - dist) / 2;
+            const ux = dx / dist, uy = dy / dist;
+            a.x -= ux * push; a.y -= uy * push;
+            b.x += ux * push; b.y += uy * push;
+          }
+        }
+      }
+      const radius = 150;
+      for (const b of btns) {
+        const cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+        const dx = cx - mouseX, dy = cy - mouseY;
+        const dist = Math.hypot(dx, dy);
+        if (dist < radius && dist > 0) {
+          const force = ((radius - dist) / radius) * 3.5;
+          const ux = dx / dist, uy = dy / dist;
+          b.x += ux * force;
+          b.y += uy * force;
+          b.vx += ux * force * 0.06;
+          b.vy += uy * force * 0.06;
+        }
+        b.x = Math.max(0, Math.min(areaW - b.w, b.x));
+        b.y = Math.max(0, Math.min(areaH - b.h, b.y));
+        if (b.x <= 0) b.vx = Math.abs(b.vx) * 0.9;
+        if (b.x >= areaW - b.w) b.vx = -Math.abs(b.vx) * 0.9;
+        if (b.y <= 0) b.vy = Math.abs(b.vy) * 0.9;
+        if (b.y >= areaH - b.h) b.vy = -Math.abs(b.vy) * 0.9;
+        b.el.style.transform = "translate(" + b.x + "px," + b.y + "px)";
+      }
+      floatRaf = requestAnimationFrame(floatLoop);
     }
 
     const canHover = window.matchMedia("(hover: hover)").matches;
@@ -412,29 +449,12 @@
     if (canHover) {
       fleeArea.addEventListener("mousemove", (e) => {
         const area = fleeArea.getBoundingClientRect();
-        const cx = e.clientX - area.left;
-        const cy = e.clientY - area.top;
-        const radius = 180;
-        for (const btn of fleeButtons) {
-          const b = btn.getBoundingClientRect();
-          const bx = b.left - area.left;
-          const by = b.top - area.top;
-          const dx = bx + b.width / 2 - cx;
-          const dy = by + b.height / 2 - cy;
-          const dist = Math.hypot(dx, dy);
-          if (dist < radius && dist > 0) {
-            const push = radius - dist;
-            let nx = bx + (dx / dist) * push;
-            let ny = by + (dy / dist) * push;
-            const left = +btn.dataset.cellLeft;
-            const top = +btn.dataset.cellTop;
-            const bw = +btn.dataset.bw;
-            const bh = +btn.dataset.bh;
-            nx = Math.max(left, Math.min(left + (+btn.dataset.cellW) - bw, nx));
-            ny = Math.max(top, Math.min(top + (+btn.dataset.cellH) - bh, ny));
-            btn.style.transform = "translate(" + (nx - +btn.dataset.baseX) + "px," + (ny - +btn.dataset.baseY) + "px)";
-          }
-        }
+        mouseX = e.clientX - area.left;
+        mouseY = e.clientY - area.top;
+      });
+      fleeArea.addEventListener("mouseleave", () => {
+        mouseX = -9999;
+        mouseY = -9999;
       });
     }
 
@@ -485,9 +505,6 @@
     document.getElementById("close-btn").addEventListener("click", () => {
       window.open("", "_self", "");
       window.close();
-      setTimeout(() => {
-        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:24px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;color:#3d2b34;">you can close this tab now 💖</div>';
-      }, 400);
     });
   </script>
 </body>
