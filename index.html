@@ -171,10 +171,13 @@
       flex: 1 1 auto;
       min-height: 240px;
       margin-top: 8px;
+      overflow: hidden; 
     }
 
     .flee-btn {
       position: absolute;
+      top: 0;            
+      left: 0;             
       border: none;
       border-radius: 999px;
       padding: 0 8px;
@@ -207,9 +210,22 @@
 </head>
 <body>
   <main>
+    <!-- Screen 0: Fish name -->
+    <section class="screen active" id="screen-fish">
+      <h1>what is the name of the fish?🐟</h1>
+      <input type="text" class="other-field" id="fish-input" placeholder="type the fish's name…" autocomplete="off">
+      <div id="fish-share" style="display:none;">
+        <p class="counter" id="fish-share-hint"></p>
+        <button class="btn btn-primary" id="fish-copy" style="margin-bottom:12px;">copy link 📋</button>
+        <br>
+        <button class="btn btn-ghost" id="fish-continue">continue →</button>
+      </div>
+      <button class="btn btn-primary" id="fish-go">continue</button>
+    </section>
+
     <!-- Screen 1: The Ask -->
-    <section class="screen active" id="screen-ask">
-      <h1 id="ask-title">are you going to ask me out? 💗</h1>
+    <section class="screen" id="screen-ask">
+      <h1 id="ask-title">are you going to ask me out, friend? 💗</h1>
       <p class="subtitle" id="no-subtitle">&nbsp;</p>
       <div class="btn-row">
         <button class="btn btn-primary" id="yes-btn">Yes</button>
@@ -249,6 +265,7 @@
 
     // ============ Screen switching ============
     const screens = {
+      fish: document.getElementById("screen-fish"),
       ask: document.getElementById("screen-ask"),
       plans: document.getElementById("screen-plans"),
       flowers: document.getElementById("screen-flowers"),
@@ -261,9 +278,53 @@
       if (name === "flowers") layoutFleeButtons();
     }
 
+    // ============ Screen 0: Fish name ============
+    let fishName = "";
+    const fishInput = document.getElementById("fish-input");
+    const fishGo = document.getElementById("fish-go");
+    const fishShare = document.getElementById("fish-share");
+    const fishShareHint = document.getElementById("fish-share-hint");
+    const fishCopy = document.getElementById("fish-copy");
+    const fishContinue = document.getElementById("fish-continue");
+
+    const urlFish = new URLSearchParams(location.search).get("fish");
+    if (urlFish) fishInput.value = urlFish;
+
+    function fishSubmitted() {
+      fishName = fishInput.value.trim();
+      if (!fishName) {
+        fishInput.focus();
+        return;
+      }
+      document.getElementById("ask-title").textContent =
+        "are you going to ask me out, " + fishName + "? 💗";
+      fishShareHint.textContent = "got it — " + fishName + "! send the link?";
+      fishGo.style.display = "none";
+      fishShare.style.display = "block";
+    }
+
+    fishGo.addEventListener("click", fishSubmitted);
+    fishInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        fishSubmitted();
+      }
+    });
+
+    fishCopy.addEventListener("click", async () => {
+      const link = location.href.split("?")[0] + "?fish=" + encodeURIComponent(fishName);
+      try {
+        await navigator.clipboard.writeText(link);
+        fishCopy.textContent = "copied ✓";
+        setTimeout(() => { fishCopy.textContent = "copy link 📋"; }, 1600);
+      } catch (_) {
+        fishCopy.textContent = "couldn't copy — long-press: " + link;
+      }
+    });
+
+    fishContinue.addEventListener("click", () => showScreen("ask"));
+
     // ============ Screen 1: The Ask ============
-    document.getElementById("ask-title").textContent =
-      "are you going to ask me out, " + CONFIG.askerName + "?";
 
     let noClickCount = 0;
     const noBtn = document.getElementById("no-btn");
@@ -508,6 +569,7 @@
       }
 
       const params = new URLSearchParams({
+        fishName: fishName,
         noClicks: noClickCount,
         dateOptionsSelected: selected.join(","),
         customSuggestion: customSuggestion || "",
