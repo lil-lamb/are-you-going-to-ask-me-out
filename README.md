@@ -21,7 +21,7 @@ A playful, flirty single-page "quiz" that nudges someone toward saying yes to a 
 - **Screen 3** — flowers? The only option is **Yes** — 30 bubbles drift across the box and dodge your cursor; catch one.
 - **Screen 4** — a personalized confirmation and a one-time invisible-GET submission to your Google Sheet (image-load GET — reliable through Apps Script's redirect in all browsers).
 
-## Backend: Google Sheet + Apps Script (free)
+## Backend: Google Sheet + Apps Script
 
 ### Step 1 — Create the Sheet
 1. Make a new Google Sheet, e.g. `AskMeOut Responses`.
@@ -97,7 +97,7 @@ function listCustomSuggestions() {
 ### Step 4 — Test
 - Submit the page once, then confirm a row appears in the Sheet and you get the email.
 
-## Hosting (free) — GitHub Pages
+## Hosting — GitHub Pages
 
 This repo is already a GitHub Pages-friendly static site. To publish:
 
@@ -106,4 +106,4 @@ This repo is already a GitHub Pages-friendly static site. To publish:
 3. Your site will be live at `https://<your-username>.github.io/are-you-going-to-ask-me-out/`.
 4. Update `CONFIG.sheetWebAppUrl` to your Apps Script URL and re-push.
 
-> Alternatively, drag the folder into [Netlify Drop](https://app.netlify.com/drop) or [Vercel](https://vercel.com) — all free.
+> Alternatively, drag the folder into [Netlify Drop](https://app.netlify.com/drop) or [Vercel](https://vercel.com).
