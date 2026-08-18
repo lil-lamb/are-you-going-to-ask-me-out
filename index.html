@@ -308,7 +308,7 @@
         return;
       }
       updateAskTitle();
-      fishShareHint.textContent = "got it — " + fishName + "! send the link?";
+      fishShareHint.textContent = "got it! send the link to " + fishName + "?";
       fishGo.style.display = "none";
       fishShare.style.display = "block";
     }
@@ -368,7 +368,7 @@
      "Escape room 🧩", "Arcade/bowling 🎳", "Sunset view 🌅", "Pottery making 🏺", "Wine/beer tasting 🍷", 
      "Farmers market 🧺", "Ice/roller skating 🛼", "Kayaking/paddleboarding 🚣", "Comedy show 🎭", 
      "Trivia night 🧠", "Bookstore browsing 📚", "Dessert crawl 🍰", "Rock climbing 🧗‍♀️", "Mini golf ⛳", 
-     "Drive-in theater 🚘", "Paint and sip 🎨", "Plant workshop 🪴", "none of the above 💭"
+     "Drive-in theater 🚘", "Paint and sip 🎨", "Plant workshop 🪴"
     ];
     const MIN_PICKS = 1;
     const MAX_PICKS = 3;
@@ -607,8 +607,8 @@ for (const b of btns) {
     function finalize() {
     const custom = otherInput.value.trim();
     let message = "wow 🤩 " + selected.join(", ");
-    if (custom) message += `, aaaand: ${custom}👀`;
-    message += "<br>Allllllright, I'll think about it and get back to you in 3–4 business days 😊";
+    if (custom) message += ` ${custom} 👀`;
+    message += "<br>Allllllright, I'll think about it and get back to you soon 😊";
     document.getElementById("done-message").innerHTML = message;
     showScreen("done");
     submitData(custom);
@@ -618,7 +618,7 @@ for (const b of btns) {
       if (submitted) return;
       submitted = true;
 
-      if (!CONFIG.sheetWebAppUrl || CONFIG.sheetWebAppUrl.indexOf("PASTE_APPS_SCRIPT_URL_HERE") !== -1) {
+      if (!CONFIG.sheetWebAppUrl || CONFIG.sheetWebAppUrl.indexOf("https://script.google.com/macros/s/AKfycbyDkP2s6Brvh6m5dz_s7LgE9ytDzh59O7Uy5i_JIeoLU_OvuZFP5m53xMqvbcCcw6UW/exec") !== -1) {
         console.warn("[AskMeOut] sheetWebAppUrl not configured; skipping submission.");
         return;
       }
