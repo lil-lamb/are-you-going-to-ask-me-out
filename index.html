@@ -211,7 +211,7 @@
 <body>
   <main>
     <!-- Screen 0: Fish name -->
-    <section class="screen active" id="screen-fish">
+    <section class="screen" id="screen-fish">
       <h1>what is the name of the fish?🐟</h1>
       <input type="text" class="other-field" id="fish-input" placeholder="type the fish's name…" autocomplete="off">
       <div id="fish-share" style="display:none;">
@@ -287,8 +287,19 @@
     const fishCopy = document.getElementById("fish-copy");
     const fishContinue = document.getElementById("fish-continue");
 
+    function updateAskTitle() {
+      document.getElementById("ask-title").textContent =
+        "are you going to ask me out, " + fishName + "? 💗";
+    }
+
     const urlFish = new URLSearchParams(location.search).get("fish");
-    if (urlFish) fishInput.value = urlFish;
+    if (urlFish) {
+      fishName = urlFish.trim();
+      updateAskTitle();
+      showScreen("ask");
+    } else {
+      showScreen("fish");
+    }
 
     function fishSubmitted() {
       fishName = fishInput.value.trim();
@@ -296,8 +307,7 @@
         fishInput.focus();
         return;
       }
-      document.getElementById("ask-title").textContent =
-        "are you going to ask me out, " + fishName + "? 💗";
+      updateAskTitle();
       fishShareHint.textContent = "got it — " + fishName + "! send the link?";
       fishGo.style.display = "none";
       fishShare.style.display = "block";
