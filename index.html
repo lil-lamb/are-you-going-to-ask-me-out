@@ -292,7 +292,8 @@
         "are you going to ask me out, " + fishName + "? 💗";
     }
 
-    const urlFish = new URLSearchParams(location.search).get("fish");
+    const params = new URLSearchParams(location.search);
+    const urlFish = params.get("fish") || params.get("fssh");
     if (urlFish) {
       fishName = urlFish.trim();
       updateAskTitle();
@@ -322,7 +323,7 @@
     });
 
     fishCopy.addEventListener("click", async () => {
-      const link = location.href.split("?")[0] + "?fssh=" + encodeURIComponent(fishName);
+      const link = location.href.split("?")[0] + "?fish=" + encodeURIComponent(fishName);
       try {
         await navigator.clipboard.writeText(link);
         fishCopy.textContent = "copied ✓";
